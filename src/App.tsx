@@ -56,133 +56,149 @@ function App() {
   }
 
   return (
-    <main
+    <div
       style={{
-        maxWidth: 720,
-        margin: "0 auto",
-        padding: "24px 16px",
-        boxSizing: "border-box",
+        minHeight: "100vh",
+        width: "100%",
+        overflow: "visible",
+        background: "#f4f4f5",
+        paddingTop: 24,
+        paddingBottom: 40,
       }}
     >
-      <div
+      <main
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 20,
+          maxWidth: 720,
+          margin: "0 auto",
+          padding: "0 16px",
+          boxSizing: "border-box",
         }}
       >
-        <h1 style={{ margin: 0, fontSize: 28 }}>이미지 게시판</h1>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 14 }}>{user?.signInDetails?.loginId}</span>
-          <button onClick={signOut}>로그아웃</button>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 20,
+            background: "#fff",
+            borderRadius: 12,
+            padding: "16px 20px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+          }}
+        >
+          <h1 style={{ margin: 0, fontSize: 24 }}>이미지 게시판</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 14 }}>{user?.signInDetails?.loginId}</span>
+            <button onClick={signOut}>로그아웃</button>
+          </div>
         </div>
-      </div>
 
-      <h2 style={{ marginTop: 0 }}>게시글 목록</h2>
+        <h2 style={{ marginTop: 0 }}>게시글 목록</h2>
 
-      {posts.length === 0 && <p>아직 게시글이 없습니다.</p>}
+        {posts.length === 0 && <p>아직 게시글이 없습니다.</p>}
 
-      {posts.map((post) => {
-        const status = post.status || "pending";
-        const displayDate = post.fetchedAt || post.createdAt;
+        {posts.map((post) => {
+          const status = post.status || "pending";
+          const displayDate = post.fetchedAt || post.createdAt;
 
-        return (
-          <article
-            key={post.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: 12,
-              padding: 16,
-              marginBottom: 20,
-              background: "#fff",
-            }}
-          >
-            <div
+          return (
+            <article
+              key={post.id}
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 12,
-                marginBottom: 8,
-                flexWrap: "wrap",
+                border: "1px solid #ddd",
+                borderRadius: 12,
+                padding: 16,
+                marginBottom: 20,
+                background: "#fff",
+                overflow: "visible",
               }}
             >
-              <h3 style={{ margin: 0, wordBreak: "break-word" }}>
-                {post.title}
-              </h3>
-              <span style={{ fontSize: 13, color: "#666" }}>
-                {formatDate(displayDate)}
-              </span>
-            </div>
-
-            <div style={{ fontSize: 13, color: "#666", marginBottom: 10 }}>
-              상태:{" "}
-              {status === "approved"
-                ? "✅ 승인됨"
-                : status === "rejected"
-                ? "❌ 거절됨"
-                : "⏳ 대기중"}
-            </div>
-
-            {post.content && (
-              <p
+              <div
                 style={{
-                  marginTop: 0,
-                  whiteSpace: "pre-wrap",
-                  wordBreak: "break-word",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  marginBottom: 8,
+                  flexWrap: "wrap",
                 }}
               >
-                {post.content}
-              </p>
-            )}
-
-            {post.imagePath && <PostImage path={post.imagePath} />}
-
-            {post.sourceUrl && (
-              <p style={{ fontSize: 13, color: "#666" }}>
-                <a href={post.sourceUrl} target="_blank" rel="noreferrer">
-                  원본 보기
-                </a>
-              </p>
-            )}
-
-            {status === "pending" && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
-                <button
-                  onClick={() => updateStatus(post, "approved")}
-                  disabled={loadingId === post.id}
-                  style={{
-                    padding: "8px 14px",
-                    borderRadius: 8,
-                    border: "none",
-                    background: "#16a34a",
-                    color: "white",
-                    cursor: "pointer",
-                  }}
-                >
-                  {loadingId === post.id ? "처리 중..." : "승인"}
-                </button>
-                <button
-                  onClick={() => updateStatus(post, "rejected")}
-                  disabled={loadingId === post.id}
-                  style={{
-                    padding: "8px 14px",
-                    borderRadius: 8,
-                    border: "none",
-                    background: "#dc2626",
-                    color: "white",
-                    cursor: "pointer",
-                  }}
-                >
-                  거절
-                </button>
+                <h3 style={{ margin: 0, wordBreak: "break-word" }}>
+                  {post.title}
+                </h3>
+                <span style={{ fontSize: 13, color: "#666" }}>
+                  {formatDate(displayDate)}
+                </span>
               </div>
-            )}
-          </article>
-        );
-      })}
-    </main>
+
+              <div style={{ fontSize: 13, color: "#666", marginBottom: 10 }}>
+                상태:{" "}
+                {status === "approved"
+                  ? "✅ 승인됨"
+                  : status === "rejected"
+                  ? "❌ 거절됨"
+                  : "⏳ 대기중"}
+              </div>
+
+              {post.content && (
+                <p
+                  style={{
+                    marginTop: 0,
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {post.content}
+                </p>
+              )}
+
+              {post.imagePath && <PostImage path={post.imagePath} />}
+
+              {post.sourceUrl && (
+                <p style={{ fontSize: 13, color: "#666" }}>
+                  <a href={post.sourceUrl} target="_blank" rel="noreferrer">
+                    원본 보기
+                  </a>
+                </p>
+              )}
+
+              {status === "pending" && (
+                <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+                  <button
+                    onClick={() => updateStatus(post, "approved")}
+                    disabled={loadingId === post.id}
+                    style={{
+                      padding: "8px 14px",
+                      borderRadius: 8,
+                      border: "none",
+                      background: "#16a34a",
+                      color: "white",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {loadingId === post.id ? "처리 중..." : "승인"}
+                  </button>
+                  <button
+                    onClick={() => updateStatus(post, "rejected")}
+                    disabled={loadingId === post.id}
+                    style={{
+                      padding: "8px 14px",
+                      borderRadius: 8,
+                      border: "none",
+                      background: "#dc2626",
+                      color: "white",
+                      cursor: "pointer",
+                    }}
+                  >
+                    거절
+                  </button>
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </main>
+    </div>
   );
 }
 
