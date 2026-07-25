@@ -1,0 +1,10 @@
+{
+  "name": "post-to-x",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "twitter-api-v2": "^1.17.2",
+    "@aws-amplify/backend": "*",
+    "aws-amplify": "*"
+  }
+}

@@ -25,7 +25,6 @@ function toDateKey(value?: string | null) {
   if (!value) return "";
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return "";
-  // 로컬 날짜 기준 YYYY-MM-DD
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
@@ -36,7 +35,7 @@ function App() {
   const { user, signOut } = useAuthenticator();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>(""); // YYYY-MM-DD
+  const [selectedDate, setSelectedDate] = useState<string>("");
 
   useEffect(() => {
     const sub = client.models.Post.observeQuery().subscribe({
@@ -62,14 +61,31 @@ function App() {
   async function updateStatus(post: Post, status: "approved" | "rejected") {
     if (!post.id) return;
     setLoadingId(post.id);
+
     try {
-      await client.models.Post.update({
-        id: post.id,
-        status,
+      if (status === "rejected") {
+        await client.models.Post.update({
+          id: post.id,
+          status: "rejected",
+        });
+        return;
+      }
+
+      // 승인: X 업로드 mutation 호출
+      const result = await client.mutations.publishToX({
+        postId: post.id,
       });
+
+      const payload = result.data;
+      if (!payload?.ok) {
+        alert(payload?.message || "X 업로드 실패");
+        return;
+      }
+
+      alert("X 업로드 완료");
     } catch (e) {
       console.error(e);
-      alert("상태 변경에 실패했습니다.");
+      alert("처리 중 오류가 발생했습니다.");
     } finally {
       setLoadingId(null);
     }
