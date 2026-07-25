@@ -31,6 +31,19 @@ function toDateKey(value?: string | null) {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+function statusLabel(status?: string | null) {
+  switch (status) {
+    case "posted":
+      return "🚀 게시됨";
+    case "approved":
+      return "✅ 승인됨";
+    case "rejected":
+      return "❌ 거절됨";
+    default:
+      return "⏳ 대기중";
+  }
+}
+
 function App() {
   const { user, signOut } = useAuthenticator();
   const [posts, setPosts] = useState<Post[]>([]);
@@ -61,31 +74,14 @@ function App() {
   async function updateStatus(post: Post, status: "approved" | "rejected") {
     if (!post.id) return;
     setLoadingId(post.id);
-
     try {
-      if (status === "rejected") {
-        await client.models.Post.update({
-          id: post.id,
-          status: "rejected",
-        });
-        return;
-      }
-
-      // 승인: X 업로드 mutation 호출
-      const result = await client.mutations.publishToX({
-        postId: post.id,
+      await client.models.Post.update({
+        id: post.id,
+        status,
       });
-
-      const payload = result.data;
-      if (!payload?.ok) {
-        alert(payload?.message || "X 업로드 실패");
-        return;
-      }
-
-      alert("X 업로드 완료");
     } catch (e) {
       console.error(e);
-      alert("처리 중 오류가 발생했습니다.");
+      alert("상태 변경에 실패했습니다.");
     } finally {
       setLoadingId(null);
     }
@@ -130,7 +126,6 @@ function App() {
           </div>
         </div>
 
-        {/* 날짜 검색 UI */}
         <div
           style={{
             background: "#fff",
@@ -218,12 +213,7 @@ function App() {
               </div>
 
               <div style={{ fontSize: 13, color: "#666", marginBottom: 10 }}>
-                상태:{" "}
-                {status === "approved"
-                  ? "✅ 승인됨"
-                  : status === "rejected"
-                  ? "❌ 거절됨"
-                  : "⏳ 대기중"}
+                상태: {statusLabel(status)}
               </div>
 
               {post.content && (
