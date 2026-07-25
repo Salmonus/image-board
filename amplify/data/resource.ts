@@ -1,5 +1,4 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
-import { postToX } from "../functions/post-to-x/resource";
 
 const schema = a.schema({
   Post: a
@@ -15,23 +14,9 @@ const schema = a.schema({
     .authorization((allow) => [
       allow.authenticated().to(["read", "update"]),
       allow.guest().to(["read"]),
-      allow.publicApiKey().to(["create", "read"]),
+      allow.publicApiKey().to(["create", "read", "update"]),
       allow.owner(),
     ]),
-
-  publishToX: a
-    .mutation()
-    .arguments({
-      postId: a.string().required(),
-    })
-    .returns(
-      a.customType({
-        ok: a.boolean(),
-        message: a.string(),
-      })
-    )
-    .authorization((allow) => [allow.authenticated()])
-    .handler(a.handler.function(postToX)),
 });
 
 export type Schema = ClientSchema<typeof schema>;
