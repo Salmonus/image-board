@@ -8,11 +8,14 @@ const schema = a.schema({
       imagePath: a.string(),
       sourceUrl: a.string(),
       redditId: a.string(),
+      status: a.string().default("pending"), // pending | approved | rejected
+      fetchedAt: a.datetime(),
     })
     .authorization((allow) => [
+      allow.authenticated().to(["read", "update"]),
+      allow.guest().to(["read"]),
+      allow.publicApiKey().to(["create", "read"]),
       allow.owner(),
-      allow.authenticated().to(["read"]),           // ← 로그인한 사람은 모든 글 읽기 가능
-      allow.publicApiKey().to(["create", "read"]), // 자동 업로드용
     ]),
 });
 
