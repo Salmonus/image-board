@@ -11,7 +11,8 @@ const schema = a.schema({
     })
     .authorization((allow) => [
       allow.owner(),
-      allow.publicApiKey().to(["create", "read"]),  // ← 여기 수정됨 (list 제거)
+      allow.authenticated().to(["read"]),           // ← 로그인한 사람은 모든 글 읽기 가능
+      allow.publicApiKey().to(["create", "read"]), // 자동 업로드용
     ]),
 });
 
