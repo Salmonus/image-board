@@ -5,6 +5,7 @@ export const postToX = defineFunction({
   entry: "./handler.ts",
   timeoutSeconds: 60,
   memoryMB: 512,
+  runtime: 20,
   environment: {
     X_API_KEY: secret("X_API_KEY"),
     X_API_SECRET: secret("X_API_SECRET"),
