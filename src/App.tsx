@@ -1,5 +1,5 @@
 import { useAuthenticator } from "@aws-amplify/ui-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { generateClient } from "aws-amplify/data";
 import { getUrl } from "aws-amplify/storage";
 import type { Schema } from "../amplify/data/resource";
@@ -21,10 +21,22 @@ function formatDate(value?: string | null) {
   });
 }
 
+function toDateKey(value?: string | null) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  // 로컬 날짜 기준 YYYY-MM-DD
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 function App() {
   const { user, signOut } = useAuthenticator();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>(""); // YYYY-MM-DD
 
   useEffect(() => {
     const sub = client.models.Post.observeQuery().subscribe({
@@ -38,6 +50,14 @@ function App() {
     });
     return () => sub.unsubscribe();
   }, []);
+
+  const filteredPosts = useMemo(() => {
+    if (!selectedDate) return posts;
+    return posts.filter((post) => {
+      const key = toDateKey(post.fetchedAt || post.createdAt);
+      return key === selectedDate;
+    });
+  }, [posts, selectedDate]);
 
   async function updateStatus(post: Post, status: "approved" | "rejected") {
     if (!post.id) return;
@@ -94,11 +114,61 @@ function App() {
           </div>
         </div>
 
+        {/* 날짜 검색 UI */}
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 12,
+            padding: 16,
+            marginBottom: 20,
+            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+            display: "flex",
+            gap: 12,
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <label style={{ fontWeight: 600 }}>날짜 검색</label>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            style={{
+              padding: "8px 10px",
+              borderRadius: 8,
+              border: "1px solid #ddd",
+            }}
+          />
+          <button
+            onClick={() => setSelectedDate("")}
+            style={{
+              padding: "8px 12px",
+              borderRadius: 8,
+              border: "1px solid #ddd",
+              background: "#fafafa",
+              cursor: "pointer",
+            }}
+          >
+            전체 보기
+          </button>
+          <span style={{ fontSize: 13, color: "#666" }}>
+            {selectedDate
+              ? `${selectedDate} 게시물 ${filteredPosts.length}개`
+              : `전체 게시물 ${posts.length}개`}
+          </span>
+        </div>
+
         <h2 style={{ marginTop: 0 }}>게시글 목록</h2>
 
-        {posts.length === 0 && <p>아직 게시글이 없습니다.</p>}
+        {filteredPosts.length === 0 && (
+          <p>
+            {selectedDate
+              ? "해당 날짜의 게시물이 없습니다."
+              : "아직 게시글이 없습니다."}
+          </p>
+        )}
 
-        {posts.map((post) => {
+        {filteredPosts.map((post) => {
           const status = post.status || "pending";
           const displayDate = post.fetchedAt || post.createdAt;
 
